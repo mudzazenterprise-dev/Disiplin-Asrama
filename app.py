@@ -171,8 +171,13 @@ def home():
     </div>
 
     <div class="top-btn">
-        <a href="/tambah/L" class="btn green">+ Tambah Lelaki</a>
-        <a href="/tambah/P" class="btn green">+ Tambah Perempuan</a>
+    <a href="/tambah_lelaki" style="background:green;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;">
+    + Tambah Lelaki
+    </a>
+
+    <a href="/tambah_perempuan" style="background:#e83e8c;color:white;padding:8px 12px;border-radius:6px;text-decoration:none;margin-left:5px;">
+    + Tambah Perempuan
+    </a>
     </div>
     """
 
