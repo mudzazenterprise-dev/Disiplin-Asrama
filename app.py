@@ -242,34 +242,304 @@ def home():
 
     return html
 
-@app.route('/tambah/<jantina>', methods=['GET', 'POST'])
-def tambah(jantina):
+@app.route('/tambah_lelaki', methods=['GET','POST'])
+def tambah_lelaki():
     if request.method == 'POST':
-        nama = request.form.get('nama')
-        ic = request.form.get('ic')
-        kelas = request.form.get('kelas')
-        asrama = request.form.get('asrama')
+        nama = request.form['nama']
+        ic = request.form['ic']
+        kelas = request.form['kelas']
+        asrama = request.form['asrama']
 
-        conn = get_db()
-        conn.execute(
-            "INSERT INTO pelajar (nama, ic, kelas, asrama, jantina) VALUES (?, ?, ?, ?, ?)",
-            (nama, ic, kelas, asrama, jantina)
-        )
+        conn = sqlite3.connect('disiplin.db')
+        conn.execute("INSERT INTO pelajar (nama, ic, kelas, asrama, markah) VALUES (?, ?, ?, ?, 100)",
+                     (nama, ic, kelas, asrama))
         conn.commit()
         conn.close()
 
         return redirect('/')
 
-    return f'''
-    <h1>Tambah Pelajar {"Lelaki" if jantina=="L" else "Perempuan"}</h1>
+    jantina = "LELAKI"
+    tajuk = "Tambah Pelajar Lelaki"
+
+    return f"""
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>{tajuk}</title>
+
+<style>
+body {{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #eef2f7, #e6ecf5);
+    margin: 0;
+}}
+
+.container {{
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}}
+
+.header {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}}
+
+.header img {{
+    width: 70px;
+}}
+
+.title {{
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}}
+
+.subtitle {{
+    font-size: 12px;
+    color: gray;
+}}
+
+.badge {{
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}}
+
+label {{
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+}}
+
+input {{
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+}}
+
+button {{
+    width: 100%;
+    margin-top: 25px;
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}}
+
+.back {{
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #555;
+    text-decoration: none;
+}}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <img src="/static/smknyalas_logo.png">
+        
+        <div class="title">
+            {tajuk}
+            <div class="subtitle">Asrama SMK Nyalas</div>
+            <div class="badge">{jantina}</div>
+        </div>
+
+        <img src="/static/logo_asramasmknyalas.png">
+    </div>
+
     <form method="POST">
-        Nama: <input name="nama"><br>
-        IC: <input name="ic"><br>
-        Kelas: <input name="kelas"><br>
-        Asrama: <input name="asrama"><br>
-        <button type="submit">Tambah</button>
+
+        <label>Nama</label>
+        <input type="text" name="nama" required>
+
+        <label>No IC</label>
+        <input type="text" name="ic" required>
+
+        <label>Kelas</label>
+        <input type="text" name="kelas" required>
+
+        <label>Asrama</label>
+        <input type="text" name="asrama" required>
+
+        <button type="submit">+ Tambah Pelajar</button>
+
     </form>
-    '''
+
+    <a class="back" href="/">← Kembali</a>
+
+</div>
+
+</body>
+</html>
+"""
+@app.route('/tambah_perempuan', methods=['GET','POST'])
+def tambah_perempuan():
+    if request.method == 'POST':
+        nama = request.form['nama']
+        ic = request.form['ic']
+        kelas = request.form['kelas']
+        asrama = request.form['asrama']
+
+        conn = sqlite3.connect('disiplin.db')
+        conn.execute("INSERT INTO pelajar (nama, ic, kelas, asrama, markah) VALUES (?, ?, ?, ?, 100)",
+                     (nama, ic, kelas, asrama))
+        conn.commit()
+        conn.close()
+
+        return redirect('/')
+
+    jantina = "PEREMPUAN"
+    tajuk = "Tambah Pelajar Perempuan"
+
+    return f"""
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>{tajuk}</title>
+
+<style>
+body {{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #fdf0f5, #f8e4ec);
+    margin: 0;
+}}
+
+.container {{
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}}
+
+.header {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}}
+
+.header img {{
+    width: 70px;
+}}
+
+.title {{
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}}
+
+.subtitle {{
+    font-size: 12px;
+    color: gray;
+}}
+
+.badge {{
+    background: #e83e8c;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}}
+
+label {{
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+}}
+
+input {{
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+}}
+
+button {{
+    width: 100%;
+    margin-top: 25px;
+    padding: 12px;
+    background: #e83e8c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}}
+
+.back {{
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #555;
+    text-decoration: none;
+}}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <img src="/static/smknyalas_logo.png">
+        
+        <div class="title">
+            {tajuk}
+            <div class="subtitle">Asrama SMK Nyalas</div>
+            <div class="badge">{jantina}</div>
+        </div>
+
+        <img src="/static/logo_asramasmknyalas.png">
+    </div>
+
+    <form method="POST">
+
+        <label>Nama</label>
+        <input type="text" name="nama" required>
+
+        <label>No IC</label>
+        <input type="text" name="ic" required>
+
+        <label>Kelas</label>
+        <input type="text" name="kelas" required>
+
+        <label>Asrama</label>
+        <input type="text" name="asrama" required>
+
+        <button type="submit">+ Tambah Pelajar</button>
+
+    </form>
+
+    <a class="back" href="/">← Kembali</a>
+
+</div>
+
+</body>
+</html>
+"""
 
 @app.route('/rekod/<int:pid>', methods=['GET','POST'])
 def rekod(pid):
