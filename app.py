@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, make_response
 import sqlite3
 import datetime
 
@@ -584,25 +584,28 @@ def rekod(pid):
 # ======================
 # DELETE REKOD (WAJIB ADA)
 # ======================
-@app.route('/delete_rekod/<int:rid>/<int:pid>')
-def delete_rekod(rid, pid):
+@app.route('/delete_rekod/<int:pid>/<int:rid>')
+def delete_rekod(pid, rid):
+    with get_db() as conn:
+        # ambil markah rekod tu dulu
+        rekod = conn.execute(
+            "SELECT markah FROM rekod WHERE id=?",
+            (rid,)
+        ).fetchone()
 
-    conn = get_db()
+        if rekod:
+            # tambah balik markah (reverse)
+            conn.execute(
+                "UPDATE pelajar SET markah = markah + ? WHERE id=?",
+                (abs(rekod["markah"]), pid)
+            )
 
-    r = conn.execute(
-        "SELECT * FROM rekod WHERE id=?",
-        (rid,)
-    ).fetchone()
+        # delete rekod
+        conn.execute(
+            "DELETE FROM rekod WHERE id=?",
+            (rid,)
+        )
 
-    if r:
-        # reverse balik markah
-        conn.execute("""
-        UPDATE pelajar
-        SET markah = markah - ?
-        WHERE id=?
-        """, (r["markah"], pid))
-
-        conn.execute("DELETE FROM rekod WHERE id=?", (rid,))
         conn.commit()
 
     return redirect(f"/rekod/{pid}")
@@ -614,45 +617,65 @@ def surat(pid):
 
     with get_db() as conn:
         pelajar = conn.execute(
-            "SELECT * FROM pelajar WHERE id=?", (pid,)
+            "SELECT * FROM pelajar WHERE id=?",
+            (pid,)
         ).fetchone()
 
         rekod_list = conn.execute(
-            "SELECT * FROM rekod WHERE pelajar_id=?", (pid,)
+            "SELECT * FROM rekod WHERE pelajar_id=?",
+            (pid,)
         ).fetchall()
 
+    # ========================
+    # BINA SENARAI REKOD
+    # ========================
     senarai_rekod = ""
     jumlah_markah = 0
 
     for r in rekod_list:
-        markah = r['markah'] if r['markah'] else 0
+        markah = r["markah"] if r["markah"] else 0
         jumlah_markah += abs(markah)
-        senarai_rekod += f"<li>{r['tarikh']} - {r['keterangan']} ({markah} markah)</li>"
 
-    # ===================== LOGIC SURAT =====================
-    if pelajar['markah'] <= 75:
+        senarai_rekod += f"""
+        <li>{r['tarikh']} - {r['keterangan']} ({markah})</li>
+        """
+
+    # ========================
+    # LOGIC SURAT IKUT MARKAH
+    # ========================
+    if pelajar["markah"] <= 75:
         tajuk = "SURAT TIDAK LAYAK MENDUDUKI ASRAMA"
-        ayat = """
+        ayat = f"""
         Adalah dimaklumkan bahawa pelajar berikut telah menunjukkan tahap disiplin yang tidak memuaskan.
         Berdasarkan rekod disiplin yang direkodkan, pelajar telah mencapai tahap markah yang rendah.
 
         Sehubungan dengan itu, pihak pengurusan asrama dengan ini memutuskan bahawa pelajar ini
         <b>TIDAK LAYAK</b> untuk meneruskan atau memohon kemasukan ke asrama pada sesi akan datang.
 
-        Keputusan ini adalah muktamad bagi memastikan disiplin dan persekitaran asrama sentiasa terkawal.
+        Keputusan ini adalah muktamad bagi memastikan disiplin dan persekitaran asrama sentiasa berada dalam keadaan terkawal.
         """
-    else:
+
+    elif pelajar["markah"] <= 79:
         tajuk = "SURAT AMARAN DISIPLIN PELAJAR ASRAMA"
-        ayat = """
+        ayat = f"""
         Adalah dimaklumkan bahawa pelajar berikut telah melakukan kesalahan disiplin yang melanggar peraturan asrama.
-
         Pihak pengurusan memandang serius perkara ini dan dengan ini mengeluarkan
-        <span style="color:red;font-weight:bold;">AMARAN TEGAS</span> kepada pelajar.
+        <span style='color:red;font-weight:bold;'>AMARAN TEGAS</span> kepada pelajar.
 
-        Pelajar dikehendaki segera memperbaiki disiplin serta mematuhi semua peraturan yang ditetapkan.
-        Sekiranya kesalahan berulang, tindakan lebih tegas akan diambil tanpa kompromi.
+        Pelajar dikehendaki segera memperbaiki disiplin serta mematuhi semua peraturan yang telah ditetapkan.
+        Sekiranya kesalahan berulang, tindakan yang lebih tegas akan diambil termasuk penarikan kelayakan asrama.
         """
 
+    else:
+        tajuk = "SURAT MAKLUMAN DISIPLIN PELAJAR"
+        ayat = f"""
+        Pelajar berada dalam keadaan disiplin yang baik.
+        Namun begitu, pelajar diingatkan supaya terus mengekalkan disiplin dan mematuhi segala peraturan asrama.
+        """
+
+    # ========================
+    # HTML SURAT
+    # ========================
     html = f"""
     <html>
     <head>
@@ -661,33 +684,18 @@ def surat(pid):
     <style>
     body {{
         font-family: Arial;
-        padding: 40px;
-        line-height: 1.6;
-    }}
-
-    .header {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }}
-
-    .logo {{
-        width: 80px;
-    }}
-
-    .center {{
-        text-align: center;
-        flex: 1;
+        margin: 40px;
     }}
 
     h3 {{
         text-align: center;
-        margin-top: 30px;
+        margin-top: 40px;
         margin-bottom: 30px;
     }}
 
     p {{
         text-align: justify;
+        margin-bottom: 15px;
     }}
 
     ul {{
@@ -695,41 +703,55 @@ def surat(pid):
     }}
 
     .signature {{
-        margin-top: 80px;
+        margin-top: 100px;
         display: flex;
         justify-content: space-between;
     }}
 
     .sign-box {{
-        width: 40%;
-        font-size: 14px;
+        width: 45%;
     }}
 
-    .left {{
-        text-align: left;
-    }}
-
-    .right {{
+    .sign-box:last-child {{
         text-align: right;
     }}
 
+    /* ================= PRINT SETTING ================= */
+    @media print {{
+        button {{
+            display: none;
+        }}
+
+        body {{
+            margin: 40px;
+        }}
+    }}
     </style>
+
     </head>
 
     <body>
 
-    <div class="header">
-        <img src="/static/smknyalas_logo.png" class="logo">
-        <div class="center">
+    <!-- 🔥 BUTTON PRINT -->
+    <button onclick="window.print()" 
+    style="position:fixed;top:20px;right:20px;padding:10px 14px;
+    background:#007bff;color:white;border:none;border-radius:6px;cursor:pointer;">
+    🖨️ Print / Save PDF
+    </button>
+
+    <div class="container">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <img src="/static/logo_asramasmknyalas.png" width="80">
+        <div style="text-align:center;">
             <b>ASRAMA SEKOLAH MENENGAH KEBANGSAAN NYALAS</b><br>
-            77100 ASAHAN, MELAKA
+            77100 ASAHAN<br>
+            MELAKA
         </div>
-        <img src="/static/logo_asramasmknyalas.png" class="logo">
+        <img src="/static/smknyalas_logo.png" width="80">
     </div>
 
-    <br>
-
-    <div style="text-align:right;">
+    <div style="text-align:right;margin-top:20px;">
         No. Rujukan: SMKN/ASR/{pid}/{datetime.date.today().strftime('%Y%m%d')}<br>
         Tarikh: {datetime.date.today().strftime('%d/%m/%Y')}
     </div>
@@ -755,23 +777,20 @@ def surat(pid):
     <p>Sekian, terima kasih.</p>
 
     <div class="signature">
-
-        <div class="sign-box left">
-            <br><br><br>
-            _______________________________<br>
-            <b>(MUHAMMAD DZAMIRUL AZIM BIN MAZLAN)</b><br>
+        <div class="sign-box">
+            ___________________________<br><br>
+            (MUHAMMAD DZAMIRUL AZIM BIN MAZLAN)<br>
             Ketua Warden Asrama<br>
             SMK Nyalas
         </div>
 
-        <div class="sign-box right">
-            <br><br><br>
-            _______________________________<br>
-            <b>(ROSLAN BIN YAAKOB)</b><br>
-            Penolong Kanan Hal Ehwal Murid<br>
-            (GPK HEM)<br>
+        <div class="sign-box">
+            ___________________________<br><br>
+            (ROSLAN BIN YAAKOB)<br>
+            Penolong Kanan Hal Ehwal Murid (GPK HEM)<br>
             SMK Nyalas
         </div>
+    </div>
 
     </div>
 
