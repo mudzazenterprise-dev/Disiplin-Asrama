@@ -629,35 +629,34 @@ def surat(pid):
         jumlah_markah += abs(markah)
         senarai_rekod += f"<li>{r['tarikh']} - {r['keterangan']} ({markah} markah)</li>"
 
-    # ===================== LOGIC SURAT =====================
+    # ===== LOGIC SURAT =====
     if pelajar['markah'] <= 75:
         tajuk = "SURAT TIDAK LAYAK MENDUDUKI ASRAMA"
-        ayat = """
+        ayat = f"""
         Adalah dimaklumkan bahawa pelajar berikut telah menunjukkan tahap disiplin yang tidak memuaskan.
         Berdasarkan rekod disiplin yang direkodkan, pelajar telah mencapai tahap markah yang rendah.
 
         Sehubungan dengan itu, pihak pengurusan asrama dengan ini memutuskan bahawa pelajar ini
         <b>TIDAK LAYAK</b> untuk meneruskan atau memohon kemasukan ke asrama pada sesi akan datang.
 
-        Keputusan ini adalah muktamad bagi memastikan disiplin dan persekitaran asrama sentiasa terkawal.
+        Keputusan ini adalah muktamad bagi memastikan disiplin dan persekitaran asrama sentiasa berada dalam keadaan terkawal.
         """
     else:
         tajuk = "SURAT AMARAN DISIPLIN PELAJAR ASRAMA"
-        ayat = """
+        ayat = f"""
         Adalah dimaklumkan bahawa pelajar berikut telah melakukan kesalahan disiplin yang melanggar peraturan asrama.
 
         Pihak pengurusan memandang serius perkara ini dan dengan ini mengeluarkan
         <span style="color:red;font-weight:bold;">AMARAN TEGAS</span> kepada pelajar.
 
         Pelajar dikehendaki segera memperbaiki disiplin serta mematuhi semua peraturan yang ditetapkan.
-        Sekiranya kesalahan berulang, tindakan lebih tegas akan diambil tanpa kompromi.
+        Sekiranya kesalahan berulang, tindakan lebih tegas akan diambil.
         """
 
     html = f"""
     <html>
     <head>
     <title>Surat</title>
-
     <style>
     body {{
         font-family: Arial;
@@ -665,52 +664,38 @@ def surat(pid):
         line-height: 1.6;
     }}
 
-    .header {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }}
-
-    .logo {{
-        width: 80px;
-    }}
-
-    .center {{
-        text-align: center;
-        flex: 1;
-    }}
-
     h3 {{
-        text-align: center;
-        margin-top: 30px;
-        margin-bottom: 30px;
+        text-align:center;
+        margin-bottom:30px;
     }}
 
     p {{
-        text-align: justify;
+        text-align:justify;
     }}
 
-    ul {{
-        margin-left: 20px;
+    .header {{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    }}
+
+    .logo {{
+        width:80px;
+    }}
+
+    .center {{
+        text-align:center;
+        flex:1;
     }}
 
     .signature {{
-        margin-top: 80px;
-        display: flex;
-        justify-content: space-between;
+        margin-top:100px;
+        display:flex;
+        justify-content:space-between;
     }}
 
     .sign-box {{
-        width: 40%;
-        font-size: 14px;
-    }}
-
-    .left {{
-        text-align: left;
-    }}
-
-    .right {{
-        text-align: right;
+        width:45%;
     }}
 
     </style>
@@ -755,31 +740,27 @@ def surat(pid):
     <p>Sekian, terima kasih.</p>
 
     <div class="signature">
-
-        <div class="sign-box left">
-            <br><br><br>
-            _______________________________<br>
+        <div class="sign-box">
+            __________________________<br>
             <b>(MUHAMMAD DZAMIRUL AZIM BIN MAZLAN)</b><br>
             Ketua Warden Asrama<br>
             SMK Nyalas
         </div>
 
-        <div class="sign-box right">
-            <br><br><br>
-            _______________________________<br>
+        <div class="sign-box" style="text-align:right;">
+            __________________________<br>
             <b>(ROSLAN BIN YAAKOB)</b><br>
-            Penolong Kanan Hal Ehwal Murid<br>
-            (GPK HEM)<br>
+            Penolong Kanan Hal Ehwal Murid (GPK HEM)<br>
             SMK Nyalas
         </div>
-
     </div>
 
     </body>
     </html>
     """
 
-    return html
+    return htmlo
+
 
 # ================= DELETE =================
 @app.route('/delete/<int:id>')
