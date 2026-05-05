@@ -247,26 +247,40 @@ def home():
 
     return html
 
-@app.route('/tambah_lelaki', methods=['GET','POST'])
+@app.route("/tambah_lelaki", methods=["GET", "POST"])
 def tambah_lelaki():
-    if request.method == 'POST':
-        nama = request.form['nama']
-        ic = request.form['ic']
-        kelas = request.form['kelas']
-        asrama = request.form['asrama']
+    if request.method == "POST":
+        nama = request.form.get("nama")
+        ic = request.form.get("ic")
+        kelas = request.form.get("kelas")
+        asrama = request.form.get("asrama")
 
-        conn = sqlite3.connect('disiplin.db')
-        conn.execute("INSERT INTO pelajar (nama, ic, kelas, asrama, markah) VALUES (?, ?, ?, ?, 100)",
-                     (nama, ic, kelas, asrama))
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO pelajar (nama, ic, kelas, asrama, jantina, markah) VALUES (?, ?, ?, ?, ?, ?)",
+            (nama, ic, kelas, asrama, "Lelaki", 100)
+            )conn.execute(
+            "INSERT INTO pelajar (nama, ic, kelas, asrama, jantina, markah) VALUES (?, ?, ?, ?, ?, ?)",
+            (nama, ic, kelas, asrama, "Lelaki", 100)
+
+        )
         conn.commit()
         conn.close()
 
-        return redirect('/')
+        return redirect("/")
 
-    jantina = "LELAKI"
-    tajuk = "Tambah Pelajar Lelaki"
+    return """
+    <h2>Tambah Pelajar Lelaki</h2>
+    <form method="POST">
+    Nama: <input name="nama"><br>
+    IC: <input name="ic"><br>
+    Kelas: <input name="kelas"><br>
+    Asrama: <input name="asrama"><br>
+    <button type="submit">Tambah</button>
+    </form>
+    <a href="/">Kembali</a>
+    """
 
-    return f"""
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -396,26 +410,36 @@ button {{
 </body>
 </html>
 """
-@app.route('/tambah_perempuan', methods=['GET','POST'])
+@app.route("/tambah_perempuan", methods=["GET", "POST"])
 def tambah_perempuan():
-    if request.method == 'POST':
-        nama = request.form['nama']
-        ic = request.form['ic']
-        kelas = request.form['kelas']
-        asrama = request.form['asrama']
+    if request.method == "POST":
+        nama = request.form.get("nama")
+        ic = request.form.get("ic")
+        kelas = request.form.get("kelas")
+        asrama = request.form.get("asrama")
 
-        conn = sqlite3.connect('disiplin.db')
-        conn.execute("INSERT INTO pelajar (nama, ic, kelas, asrama, markah) VALUES (?, ?, ?, ?, 100)",
-                     (nama, ic, kelas, asrama))
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO pelajar (nama, ic, kelas, asrama, jantina, markah) VALUES (?, ?, ?, ?, ?, ?)",
+            (nama, ic, kelas, asrama, "Perempuan", 100)
+        )
         conn.commit()
         conn.close()
 
-        return redirect('/')
+        return redirect("/")
 
-    jantina = "PEREMPUAN"
-    tajuk = "Tambah Pelajar Perempuan"
+    return """
+    <h2>Tambah Pelajar Perempuan</h2>
+    <form method="POST">
+        Nama: <input name="nama"><br>
+        IC: <input name="ic"><br>
+        Kelas: <input name="kelas"><br>
+        Asrama: <input name="asrama"><br><br>
+        <button type="submit">Tambah</button>
+    </form>
+    <br><a href="/">Kembali</a>
+    """
 
-    return f"""
 <!DOCTYPE html>
 <html lang="ms">
 <head>
