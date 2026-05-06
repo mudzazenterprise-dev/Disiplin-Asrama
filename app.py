@@ -15,7 +15,7 @@ if database_url:
 
 # ================= DB =================
 def init_db():
-
+    pass
 def get_db():
     conn = sqlite3.connect('disiplin.db')
     conn.row_factory = sqlite3.Row
