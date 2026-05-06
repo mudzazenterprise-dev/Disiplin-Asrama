@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, make_response
-import sqlite3
 from flask_sqlalchemy import SQLAlchemy
 import os
 import datetime
@@ -8,8 +7,10 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'smknyalas'
 
-# GUNA SQLITE SAHAJA
-DATABASE = 'disiplin.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 # ================= DB =================
 def init_db():
