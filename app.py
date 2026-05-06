@@ -23,7 +23,7 @@ def get_db():
 @app.route('/')
 def home():
     with get_db() as conn:
-       pelajar = conn.execute("SELECT * FROM pelajar").fetchall()
+    pelajar = conn.execute("SELECT * FROM pelajar ORDER BY markah ASC").fetchall()
 
     lelaki = [p for p in pelajar if p["jantina"] == "Lelaki"]
     perempuan = [p for p in pelajar if p["jantina"] == "Perempuan"]
