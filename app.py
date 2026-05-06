@@ -6,12 +6,10 @@ import datetime
 
 app = Flask(__name__)
 
-database_url = os.environ.get("DATABASE_URL")
+app.config['SECRET_KEY'] = 'smknyalas'
 
-if database_url:
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = SQLAlchemy(app)
+# GUNA SQLITE SAHAJA
+DATABASE = 'disiplin.db'
 
 # ================= DB =================
 def init_db():
