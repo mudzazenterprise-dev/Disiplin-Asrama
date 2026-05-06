@@ -15,49 +15,11 @@ if database_url:
 
 # ================= DB =================
 def init_db():
-    conn = sqlite3.connect('disiplin.db')
-    c = conn.cursor()
-
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS pelajar (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nama TEXT,
-        ic TEXT,
-        kelas TEXT,
-        asrama TEXT,
-        jantina TEXT,
-        markah INTEGER DEFAULT 100
-    )
-    ''')
-
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS rekod (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        pelajar_id INTEGER,
-        tarikh TEXT,
-        jenis TEXT,
-        keterangan TEXT,
-        markah INTEGER
-    )
-    ''')
-
-    conn.commit()
-    conn.close()
-
-init_db()
 
 def get_db():
     conn = sqlite3.connect('disiplin.db')
     conn.row_factory = sqlite3.Row
     return conn
-    conn.execute("""
-    INSERT INTO pelajar (nama, ic, kelas, asrama, jantina, markah)
-    VALUES (?, ?, ?, ?, ?, 100)
-    """, (nama, ic, kelas, asrama, jantina))
-
-    conn.commit()      # WAJIB
-    conn.close()
-    return redirect("/")   # WAJIB
 
 # ================= HOME =================
 @app.route('/')
