@@ -8,14 +8,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'smknyalas'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL") or "sqlite:///disiplin.db"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
 # ================= DB =================
-def init_db():
-    pass
 def get_db():
     conn = sqlite3.connect('disiplin.db')
     conn.row_factory = sqlite3.Row
@@ -24,11 +17,13 @@ def get_db():
 # ================= HOME =================
 @app.route('/')
 def home():
+
     with get_db() as conn:
         pelajar = conn.execute("SELECT * FROM pelajar ORDER BY markah ASC").fetchall()
 
     lelaki = [p for p in pelajar if p["jantina"] == "Lelaki"]
     perempuan = [p for p in pelajar if p["jantina"] == "Perempuan"]
+
     html = f"""
     <html>
     <head>
