@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 import os
 import datetime
+import psycopg2
+import psycopg2.extras
 
 app = Flask(__name__)
 
@@ -10,8 +12,12 @@ app.config['SECRET_KEY'] = 'smknyalas'
 
 # ================= DB =================
 def get_db():
-    conn = sqlite3.connect('disiplin.db')
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(
+        host="dpg-d7tbl267r5hc738iqr60-a.singapore-postgres.render.com",
+        database="disiplin",
+        user="mudzaz",
+        password="gYgMqlVApkVdkfdu0kAJV0FJMky2RsPG"
+    )
     return conn
 
 # ================= HOME =================
@@ -19,7 +25,9 @@ def get_db():
 def home():
 
     with get_db() as conn:
-        pelajar = conn.execute("SELECT * FROM pelajar ORDER BY markah ASC").fetchall()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT * FROM pelajar ORDER BY markah ASC")
+        pelajar = cur.fetchall()
 
     lelaki = [p for p in pelajar if p["jantina"] == "Lelaki"]
     perempuan = [p for p in pelajar if p["jantina"] == "Perempuan"]
